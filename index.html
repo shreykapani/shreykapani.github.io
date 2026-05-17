@@ -498,7 +498,55 @@ function renderToday(){
   if(dow===0){
     h+=bigState('😴','REST DAY','dim','Sleep 8 hours. Hit 165g protein.<br>Muscles grow during rest — enjoy it.');
   } else if(dow===3){
-    h+=bigState('🚴','CARDIO','blue','20 min easy — bike, treadmill or rower.<br>18–20 SPM. Easy enough to hold a conversation.');
+    h+=`<div class="s-name">WEDNESDAY</div>
+    <div class="s-meta"><span class="tag tag-pull">Core + Cardio</span><span class="s-dur">~40 min total</span></div>`;
+    h+=`<div class="warmup-bar"><strong>Cardio first</strong>20 min easy cardio — bike, treadmill or rower at home. 18–20 SPM. Easy pace.</div>`;
+    h+=`<div class="sec-label">Home Core — 20 min</div>`;
+    const coreEx=[
+      {key:'plank',      name:'Plank',             sets:'3',reps:'45 sec', noW:true, label:'BW'},
+      {key:'hollow',     name:'Hollow Body Hold',  sets:'3',reps:'30 sec', noW:true, label:'BW'},
+      {key:'bicycle',    name:'Bicycle Crunches',  sets:'3',reps:'20 each',noW:true, label:'BW'},
+      {key:'legraisehm', name:'Lying Leg Raises',  sets:'3',reps:'15',     noW:true, label:'BW'},
+      {key:'deadbug',    name:'Dead Bug',           sets:'3',reps:'10 each',noW:true, label:'BW'},
+    ];
+    const coreRest={plank:'30 sec',hollow:'30 sec',bicycle:'30 sec',legraisehm:'30 sec',deadbug:'30 sec'};
+    const coreCues={
+      plank:'Brace your core like you are about to take a punch. Hips level — not sagging, not piking up. Breathe.',
+      hollow:'Lie flat, press your lower back into the floor, raise legs and shoulders slightly. Hold the tension.',
+      bicycle:'Slow and controlled — elbow to opposite knee with a twist. Do not rush. Feel the oblique.',
+      legraisehm:'Legs together, lower back pressed into the floor. Lower legs slowly — stop before your back arches.',
+      deadbug:'On your back, arms up. Lower opposite arm and leg slowly. Lower back stays glued to floor. The key is going slow.',
+    };
+    coreEx.forEach(ex=>{
+      const exDone=isExDone(ex.key);
+      const isExp=expandedEx===ex.key;
+      h+=`<div class="ex-card${exDone?' done':''}${isExp?' expanded':''}" id="exc-${ex.key}">
+        <div class="ex-hdr" onclick="toggleEx('${ex.key}')">
+          <div class="ex-cb" onclick="event.stopPropagation();toggleExDone('${ex.key}')">
+            <svg class="ex-cb-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-meta">${ex.sets}×${ex.reps} · ${coreRest[ex.key]} rest</div>
+          </div>
+          <div class="ex-prev"><div class="ex-prev-val" style="font-size:11px;color:var(--muted)">BW</div></div>
+          <div class="ex-chev">▼</div>
+        </div>`;
+      if(isExp){
+        h+=`<div class="ex-body">
+          <div class="prev-hint">${coreCues[ex.key]}</div>
+          <button class="ex-mark-btn ${exDone?'unmark':'mark'}" onclick="toggleExDone('${ex.key}')">
+            ${exDone?'✓ Done — tap to undo':'Mark done'}
+          </button></div>`;
+      }
+      h+=`</div>`;
+    });
+    const coreDone=coreEx.filter(e=>isExDone(e.key)).length;
+    const corePct=Math.round((coreDone/coreEx.length)*100);
+    h+=`<div class="mini-progress">
+      <div class="mp-row"><span>${coreDone}/${coreEx.length} done</span><span style="color:var(--accent)">${corePct}%</span></div>
+      <div class="mp-bar"><div class="mp-fill" style="width:${corePct}%"></div></div>
+    </div>`;
   } else if(!sk){
     h+=bigState('💪','REST','dim','Recover. Come back strong tomorrow.');
   } else {
@@ -773,6 +821,23 @@ function renderPlan(){
     }
     h+=`</div></div>`;
   });
+
+  // Wednesday core
+  h+=`<div class="sec-label">Wednesday — Home Core</div>
+  <div class="prog-block">
+    <div class="prog-hdr" onclick="togProg('pb-core','pc-core')">
+      <div><div class="prog-title">CORE — Wednesday</div><div class="prog-sub-lbl">At home · 20 min · No equipment</div></div>
+      <div class="prog-hdr-r"><span class="tag tag-pull" style="color:#4aff7a;border-color:#4aff7a;background:#0a180a">Core</span><span class="chev" id="pc-core">▼</span></div>
+    </div>
+    <div class="prog-body" id="pb-core">
+      <div class="prog-wb dim">🚴 20 min easy cardio first — then go straight into core</div>
+      <div class="plan-ex"><div class="plan-ex-hdr" onclick="this.parentElement.classList.toggle('cue-open')"><div class="plan-ex-name">Plank</div><div class="plan-ex-sets">3×45s</div><div class="plan-ex-w">BW</div><div class="plan-ex-chev">▼</div></div><div class="plan-cue"><div style="font-size:12px;color:var(--text2);line-height:1.5">Brace like you are about to take a punch. Hips level — not sagging, not piked. Breathe steadily.</div></div></div>
+      <div class="plan-ex"><div class="plan-ex-hdr" onclick="this.parentElement.classList.toggle('cue-open')"><div class="plan-ex-name">Hollow Body Hold</div><div class="plan-ex-sets">3×30s</div><div class="plan-ex-w">BW</div><div class="plan-ex-chev">▼</div></div><div class="plan-cue"><div style="font-size:12px;color:var(--text2);line-height:1.5">Flat on back, press lower back into floor. Raise legs and shoulders slightly. Hold the tension. Most underrated core move — transfers directly to pull-ups.</div></div></div>
+      <div class="plan-ex"><div class="plan-ex-hdr" onclick="this.parentElement.classList.toggle('cue-open')"><div class="plan-ex-name">Bicycle Crunches</div><div class="plan-ex-sets">3×20 each</div><div class="plan-ex-w">BW</div><div class="plan-ex-chev">▼</div></div><div class="plan-cue"><div style="font-size:12px;color:var(--text2);line-height:1.5">Slow — elbow to opposite knee with a full twist. Feel the oblique. These build the V-shape on your sides.</div></div></div>
+      <div class="plan-ex"><div class="plan-ex-hdr" onclick="this.parentElement.classList.toggle('cue-open')"><div class="plan-ex-name">Lying Leg Raises</div><div class="plan-ex-sets">3×15</div><div class="plan-ex-w">BW</div><div class="plan-ex-chev">▼</div></div><div class="plan-cue"><div style="font-size:12px;color:var(--text2);line-height:1.5">Lower back glued to the floor. Lower legs slowly — stop before back arches. Builds toward hanging leg raises.</div></div></div>
+      <div class="plan-ex" style="border-bottom:none"><div class="plan-ex-hdr" onclick="this.parentElement.classList.toggle('cue-open')"><div class="plan-ex-name">Dead Bug</div><div class="plan-ex-sets">3×10 each</div><div class="plan-ex-w">BW</div><div class="plan-ex-chev">▼</div></div><div class="plan-cue"><div style="font-size:12px;color:var(--text2);line-height:1.5">On back, arms up. Lower opposite arm and leg slowly. Lower back stays glued down. Go slow — that is the entire point. Directly helps deadlift stability.</div></div></div>
+    </div>
+  </div>`;
 
   // Pull-up progression table
   h+=`<div class="sec-label">Pull-Up Progression</div>
